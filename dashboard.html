@@ -1,49 +1,50 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Estudo Ativo - Dashboard</title>
-  <link rel="stylesheet" href="css/style.css" />
-</head>
-<body>
-  <div class="container">
-    <header>
-      <h1>📚 Estudo Ativo</h1>
-      <button id="logoutBtn">Sair</button>
-    </header>
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 
-    <div id="user-info">
-      <p>Bem-vindo, <span id="userName">...</span>!</p>
-      <p>Plano: <span id="userPlan">Gratuito</span></p>
-    </div>
+<!-- Configuração do Firebase -->
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyCZ5Pgzv08pcR6Xfp-SdjdYmqqSw7brNQ4",
+    authDomain: "estudo-ativo-projeto.firebaseapp.com",
+    projectId: "estudo-ativo-projeto",
+    storageBucket: "estudo-ativo-projeto.firebasestorage.app",
+    messagingSenderId: "257330913879",
+    appId: "1:257330913879:web:4babb1b1fa4a77cd7bb912"
+  };
 
-    <!-- Lista de tópicos -->
-    <div id="topics-list">
-      <h2>Tópicos Disponíveis</h2>
-      <ul>
-        <li><a href="#" onclick="loadTopic('exemplo')">Exemplo (50 questões)</a></li>
-      </ul>
-    </div>
+  firebase.initializeApp(firebaseConfig);
+</script>
 
-    <!-- Exibição de questões -->
-    <div id="question-container" style="display:none;">
-      <h2 id="topic-title">Tópico</h2>
-      <div id="question-box"></div>
-      <div id="notes-section"></div>
-      <button onclick="nextQuestion()">Próxima Questão</button>
-    </div>
+<!-- Carrega o nome do usuário ao abrir o dashboard -->
+<script>
+  window.addEventListener('load', () => {
+    firebase.auth().onAuthStateChanged(user => {
+      if (!user) {
+        // Se não estiver logado, volta para o login
+        window.location.href = 'index.html';
+      } else {
+        // ✅ Exibe o nome do usuário
+        const userNameElement = document.getElementById('userName');
+        if (userNameElement) {
+          userNameElement.textContent = user.displayName || user.email || 'Usuário';
+        }
+        // Define plano como Gratuito (ou carregue do Firestore depois)
+        const userPlanElement = document.getElementById('userPlan');
+        if (userPlanElement) {
+          userPlanElement.textContent = 'Gratuito';
+        }
+      }
+    });
 
-    <!-- Status diário -->
-    <p class="footer">Limite diário: <span id="daily-status">Carregando...</span></p>
-  </div>
-
-  <!-- Firebase SDKs -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-
-  <!-- Configuração do Firebase -->
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSy
+    // Botão de sair
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+      logoutBtn.addEventListener('click', () => {
+        firebase.auth().signOut().then(() => {
+          window.location.href = 'index.html';
+        });
+      });
+    }
+  });
+</script>
