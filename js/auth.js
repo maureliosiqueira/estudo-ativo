@@ -5,7 +5,7 @@ function signInWithGoogle() {
 
 function signOutUser() {
   firebase.auth().signOut().then(() => {
-    window.location.href = 'índice.html';
+    window.location.href = 'index.html';
   });
 }
 
@@ -15,7 +15,7 @@ function checkAuth() {
       document.getElementById('userName').textContent = user.displayName || user.email;
       loadUserProfile(user.uid);
     } else {
-      window.location.href = 'índice.html';
+      window.location.href = 'index.html';
     }
   });
 
