@@ -14,49 +14,35 @@
     <p class="footer">Código aberto • Gratuito para todos</p>
   </div>
 
-  <!-- Firebase SDKs - Versão COMPAT (para CDN) -->
+  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 
   <script>
-    // 🔑 Configuração do Firebase (COLE SUAS CHAVES REAIS AQUI)
+    // 🔑 Suas chaves reais
     const firebaseConfig = {
       apiKey: "AIzaSyCZ5Pgzv08pcR6Xfp-SdjdYmqqSw7brNQ4",
       authDomain: "estudo-ativo-projeto.firebaseapp.com",
       projectId: "estudo-ativo-projeto",
       storageBucket: "estudo-ativo-projeto.firebasestorage.app",
       messagingSenderId: "257330913879",
-      appId: "1:257330913879:web:4babb1b1fa4a77cd7bb912",
-      measurementId: "G-SJT94J9CP7"
+      appId: "1:257330913879:web:4babb1b1fa4a77cd7bb912"
     };
 
-    // Inicializa o Firebase (versão compat)
     firebase.initializeApp(firebaseConfig);
 
-    // Função de login
     document.getElementById('loginBtn').addEventListener('click', () => {
       const provider = new firebase.auth.GoogleAuthProvider();
-      firebase.auth().signInWithRedirect(provider);
-    });
-
-    // 🔥 Redirecionamento automático após login
-    window.addEventListener('load', () => {
-      firebase.auth().getRedirectResult().then(() => {
-        // Após login com redirect, verifica se há usuário
-        const user = firebase.auth().currentUser;
-        if (user) {
+      // 🔥 Usa POPUP em vez de REDIRECT
+      firebase.auth().signInWithPopup(provider)
+        .then(() => {
+          // Login bem-sucedido → vai para o dashboard
           window.location.href = 'dashboard.html';
-        }
-      }).catch((error) => {
-        console.error("Erro no login:", error);
-      });
-
-      // Também escuta mudanças de estado (sessões persistentes)
-      firebase.auth().onAuthStateChanged(user => {
-        if (user && window.location.pathname.endsWith('index.html')) {
-          window.location.href = 'dashboard.html';
-        }
-      });
+        })
+        .catch((error) => {
+          console.error("Erro no login:", error);
+          alert("Falha no login: " + error.message);
+        });
     });
   </script>
 </body>
