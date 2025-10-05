@@ -10,11 +10,11 @@
   <div class="container">
     <h1>📚 Estudo Ativo</h1>
     <p>Entre para acessar suas questões e anotações.</p>
-    <button id="loginBtn" onclick="signInWithGoogle()">Entrar com Google</button>
+    <button id="loginBtn">Entrar com Google</button>
     <p class="footer">Código aberto • Gratuito para todos</p>
   </div>
 
-  <!-- Firebase SDKs -->
+  <!-- Firebase SDKs - Versão COMPAT (para CDN) -->
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 
@@ -30,30 +30,30 @@
       measurementId: "G-SJT94J9CP7"
     };
 
-    // Inicializa o Firebase
+    // Inicializa o Firebase (versão compat)
     firebase.initializeApp(firebaseConfig);
 
     // Função de login
-    function signInWithGoogle() {
+    document.getElementById('loginBtn').addEventListener('click', () => {
       const provider = new firebase.auth.GoogleAuthProvider();
       firebase.auth().signInWithRedirect(provider);
-    }
+    });
 
-    // 🔥 Verificação CRÍTICA ao carregar a página
+    // 🔥 Redirecionamento automático após login
     window.addEventListener('load', () => {
-      // Primeiro, verifica se há resultado de redirecionamento
-      firebase.auth().getRedirectResult().then((result) => {
-        if (result.user) {
-          // Login bem-sucedido via redirect → vai para o dashboard
+      firebase.auth().getRedirectResult().then(() => {
+        // Após login com redirect, verifica se há usuário
+        const user = firebase.auth().currentUser;
+        if (user) {
           window.location.href = 'dashboard.html';
         }
       }).catch((error) => {
-        console.error("Erro no redirect:", error);
+        console.error("Erro no login:", error);
       });
 
-      // Segundo, escuta mudanças de estado (para sessões persistentes)
+      // Também escuta mudanças de estado (sessões persistentes)
       firebase.auth().onAuthStateChanged(user => {
-        if (user && window.location.pathname.includes('index.html')) {
+        if (user && window.location.pathname.endsWith('index.html')) {
           window.location.href = 'dashboard.html';
         }
       });
