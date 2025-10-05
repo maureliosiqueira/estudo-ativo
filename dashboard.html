@@ -1,64 +1,14 @@
-<!DOCTYPE html>
-<html lang="pt-BR">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Estudo Ativo - Dashboard</title>
-  <link rel="stylesheet" href="css/style.css" />
-</head>
-<body>
-  <div class="container">
-    <header>
-      <h1>📚 Estudo Ativo</h1>
-      <button id="logoutBtn">Sair</button>
-    </header>
-
-    <div id="user-info">
-      <p>Bem-vindo, <span id="userName">...</span>!</p>
-      <p>Plano: <span id="userPlan">Gratuito</span></p>
-    </div>
-
-    <!-- Lista de tópicos -->
-    <div id="topics-list">
-      <h2>Tópicos Disponíveis</h2>
-      <ul>
-        <li><a href="#" onclick="loadTopic('exemplo')">Exemplo (50 questões)</a></li>
-        <!-- Adicione mais tópicos aqui -->
-        <!-- <li><a href="#" onclick="loadTopic('seguranca')">Segurança da Informação</a></li> -->
-        <!-- <li><a href="#" onclick="loadTopic('cobit')">COBIT</a></li> -->
-      </ul>
-    </div>
-
-    <!-- Exibição de questões -->
-    <div id="question-container" style="display:none;">
-      <h2 id="topic-title">Tópico</h2>
-      <div id="question-box"></div>
-      <div id="notes-section"></div>
-      <button onclick="nextQuestion()">Próxima Questão</button>
-    </div>
-
-    <!-- Status diário -->
-    <p class="footer">Limite diário: <span id="daily-status">Carregando...</span></p>
-  </div>
-
-  <!-- Firebase SDKs -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-
-  <!-- Configuração e scripts -->
-  <script src="firebase-config.js"></script>
-  <script src="js/auth.js"></script>
-  <script src="js/daily-limit.js"></script>
-  <script src="js/questions.js"></script>
-  <script src="js/notes.js"></script>
-
-  <script>
-    // Inicializa ao carregar a página
-    window.onload = () => {
-      checkAuth(); // Verifica se o usuário está logado
-      updateDailyStatus(); // Atualiza o contador diário
-    };
-  </script>
-</body>
-</html>
+<!-- Em dashboard.html, no final do body -->
+<script>
+  window.addEventListener('load', () => {
+    firebase.auth().onAuthStateChanged(user => {
+      if (!user) {
+        window.location.href = 'index.html';
+      } else {
+        document.getElementById('userName').textContent = user.displayName || user.email;
+        // Aqui você pode carregar o plano (gratuito/premium) do Firestore, se quiser
+        document.getElementById('userPlan').textContent = 'Gratuito'; // ou busque do Firestore
+      }
+    });
+  });
+</script>
