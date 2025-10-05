@@ -14,8 +14,15 @@ function checkAuth() {
     if (user) {
       document.getElementById('userName').textContent = user.displayName || user.email;
       loadUserProfile(user.uid);
+      // Redireciona para o dashboard se estiver na página de login
+      if (window.location.pathname.endsWith('index.html')) {
+        window.location.href = 'dashboard.html';
+      }
     } else {
-      window.location.href = 'index.html';
+      // Se não estiver logado, redireciona para a página de login
+      if (!window.location.pathname.endsWith('index.html')) {
+        window.location.href = 'index.html';
+      }
     }
   });
 
