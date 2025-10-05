@@ -14,14 +14,12 @@
     <p class="footer">Código aberto • Gratuito para todos</p>
   </div>
 
-  <!-- Firebase SDKs (versão compatível com CDN) -->
+  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 
-  <!-- Configuração do Firebase -->
   <script>
-    // 🔑 Suas chaves reais (copiadas do Firebase Console)
+    // 🔑 Configuração do Firebase (COLE SUAS CHAVES REAIS AQUI)
     const firebaseConfig = {
       apiKey: "AIzaSyCZ5Pgzv08pcR6Xfp-SdjdYmqqSw7brNQ4",
       authDomain: "estudo-ativo-projeto.firebaseapp.com",
@@ -34,25 +32,30 @@
 
     // Inicializa o Firebase
     firebase.initializeApp(firebaseConfig);
-  </script>
 
-  <!-- Função de login -->
-  <script>
+    // Função de login
     function signInWithGoogle() {
       const provider = new firebase.auth.GoogleAuthProvider();
       firebase.auth().signInWithRedirect(provider);
     }
-  </script>
 
-  <!-- 🔥 Redirecionamento automático após login -->
-  <script>
+    // 🔥 Verificação CRÍTICA ao carregar a página
     window.addEventListener('load', () => {
-      firebase.auth().onAuthStateChanged(user => {
-        if (user) {
-          // Usuário está logado → redireciona para o dashboard
+      // Primeiro, verifica se há resultado de redirecionamento
+      firebase.auth().getRedirectResult().then((result) => {
+        if (result.user) {
+          // Login bem-sucedido via redirect → vai para o dashboard
           window.location.href = 'dashboard.html';
         }
-        // Se não estiver logado, permanece na página de login
+      }).catch((error) => {
+        console.error("Erro no redirect:", error);
+      });
+
+      // Segundo, escuta mudanças de estado (para sessões persistentes)
+      firebase.auth().onAuthStateChanged(user => {
+        if (user && window.location.pathname.includes('index.html')) {
+          window.location.href = 'dashboard.html';
+        }
       });
     });
   </script>
