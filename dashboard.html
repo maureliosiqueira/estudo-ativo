@@ -1,50 +1,206 @@
-<!-- Firebase SDKs -->
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Estudo Ativo - Dashboard</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>📚 Estudo Ativo</h1>
+      <button id="logoutBtn">Sair</button>
+    </header>
 
-<!-- Configuração do Firebase -->
-<script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyCZ5Pgzv08pcR6Xfp-SdjdYmqqSw7brNQ4",
-    authDomain: "estudo-ativo-projeto.firebaseapp.com",
-    projectId: "estudo-ativo-projeto",
-    storageBucket: "estudo-ativo-projeto.firebasestorage.app",
-    messagingSenderId: "257330913879",
-    appId: "1:257330913879:web:4babb1b1fa4a77cd7bb912"
-  };
+    <div id="user-info">
+      <p>Bem-vindo, <span id="userName">...</span>!</p>
+      <p>Plano: <span id="userPlan">Gratuito</span></p>
+    </div>
 
-  firebase.initializeApp(firebaseConfig);
-</script>
+    <!-- Lista de tópicos -->
+    <div id="topics-list">
+      <h2>Tópicos Disponíveis</h2>
+      <ul>
+        <li><a href="#" onclick="loadTopic('exemplo')">Exemplo (50 questões)</a></li>
+      </ul>
+    </div>
 
-<!-- Carrega o nome do usuário ao abrir o dashboard -->
-<script>
-  window.addEventListener('load', () => {
-    firebase.auth().onAuthStateChanged(user => {
-      if (!user) {
-        // Se não estiver logado, volta para o login
+    <!-- Exibição de questões -->
+    <div id="question-container" style="display:none;">
+      <h2 id="topic-title">Tópico</h2>
+      <div id="question-box"></div>
+      <div id="notes-section"></div>
+      <button onclick="nextQuestion()">Próxima Questão</button>
+    </div>
+
+    <!-- Status diário -->
+    <p class="footer">Limite diário: <span id="daily-status">Carregando...</span></p>
+  </div>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+  <!-- Configuração do Firebase -->
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyCZ5Pgzv08pcR6Xfp-SdjdYmqqSw7brNQ4",
+      authDomain: "estudo-ativo-projeto.firebaseapp.com",
+      projectId: "estudo-ativo-projeto",
+      storageBucket: "estudo-ativo-projeto.firebasestorage.app",
+      messagingSenderId: "257330913879",
+      appId: "1:257330913879:web:4babb1b1fa4a77cd7bb912",
+      measurementId: "G-SJT94J9CP7"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+  </script>
+
+  <!-- Funções de autenticação -->
+  <script>
+    function signOutUser() {
+      firebase.auth().signOut().then(() => {
         window.location.href = 'index.html';
-      } else {
-        // ✅ Exibe o nome do usuário
-        const userNameElement = document.getElementById('userName');
-        if (userNameElement) {
-          userNameElement.textContent = user.displayName || user.email || 'Usuário';
-        }
-        // Define plano como Gratuito (ou carregue do Firestore depois)
-        const userPlanElement = document.getElementById('userPlan');
-        if (userPlanElement) {
-          userPlanElement.textContent = 'Gratuito';
-        }
-      }
-    });
-
-    // Botão de sair
-    const logoutBtn = document.getElementById('logoutBtn');
-    if (logoutBtn) {
-      logoutBtn.addEventListener('click', () => {
-        firebase.auth().signOut().then(() => {
-          window.location.href = 'index.html';
-        });
       });
     }
-  });
-</script>
+
+    // Verifica autenticação ao carregar a página
+    window.addEventListener('load', () => {
+      firebase.auth().onAuthStateChanged(user => {
+        if (!user) {
+          window.location.href = 'index.html'; // Redireciona para login se não estiver logado
+        } else {
+          document.getElementById('userName').textContent = user.displayName || user.email;
+          document.getElementById('userPlan').textContent = 'Gratuito';
+        }
+      });
+
+      document.getElementById('logoutBtn')?.addEventListener('click', signOutUser);
+    });
+  </script>
+
+  <!-- Controle de limite diário -->
+  <script>
+    let dailyCount = 0;
+    const DAILY_LIMIT_FREE = 10;
+
+    function updateDailyStatus() {
+      const today = new Date().toDateString();
+      const storedDate = localStorage.getItem('estudoAtivo.lastDate');
+      const storedCount = parseInt(localStorage.getItem('estudoAtivo.dailyCount') || '0');
+
+      if (storedDate !== today) {
+        dailyCount = 0;
+        localStorage.setItem('estudoAtivo.lastDate', today);
+        localStorage.setItem('estudoAtivo.dailyCount', '0');
+      } else {
+        dailyCount = storedCount;
+      }
+
+      document.getElementById('daily-status').textContent = 
+        `${dailyCount}/${DAILY_LIMIT_FREE} (gratuito)`;
+    }
+
+    function incrementDailyCount() {
+      dailyCount++;
+      localStorage.setItem('estudoAtivo.dailyCount', dailyCount.toString());
+      updateDailyStatus();
+    }
+
+    function canAnswerMore() {
+      const isPremium = document.getElementById('userPlan')?.textContent === 'Premium';
+      return isPremium || dailyCount < DAILY_LIMIT_FREE;
+    }
+
+    window.onload = updateDailyStatus;
+  </script>
+
+  <!-- Lógica de exibição de questões -->
+  <script>
+    let currentTopic = null;
+    let currentQuestionIndex = 0;
+
+    async function loadTopic(topicKey) {
+      try {
+        const response = await fetch(`topicos/${topicKey}.json`);
+        if (!response.ok) throw new Error('Tópico não encontrado');
+        currentTopic = await response.json();
+        currentQuestionIndex = 0;
+        showQuestion();
+        document.getElementById('topics-list').style.display = 'none';
+        document.getElementById('question-container').style.display = 'block';
+        document.getElementById('topic-title').textContent = currentTopic.titulo;
+      } catch (error) {
+        alert('Erro ao carregar o tópico: ' + error.message);
+      }
+    }
+
+    function showQuestion() {
+      if (!canAnswerMore()) {
+        document.getElementById('question-box').innerHTML = `
+          <p>⚠️ Limite diário atingido! Volte amanhã ou <a href="#">torne-se premium</a>.</p>
+        `;
+        return;
+      }
+
+      const q = currentTopic.questoes[currentQuestionIndex];
+      document.getElementById('question-box').innerHTML = `
+        <p><strong>Questão ${q.id} de ${currentTopic.questoes.length}</strong></p>
+        <p>${q.enunciado}</p>
+        <ul>
+          ${q.alternativas.map(alt => `<li><label><input type="radio" name="q" value="${alt[0]}"> ${alt}</label></li>`).join('')}
+        </ul>
+        <button onclick="showAnswer(${q.id})">Ver Resposta</button>
+      `;
+      loadNote(q.id);
+    }
+
+    function showAnswer(questionId) {
+      const q = currentTopic.questoes[currentQuestionIndex];
+      document.getElementById('question-box').innerHTML += `
+        <div class="answer">
+          <p><strong>Resposta correta:</strong> ${q.resposta_correta}</p>
+          <p><em>${q.explicacao}</em></p>
+        </div>
+      `;
+      incrementDailyCount();
+    }
+
+    function nextQuestion() {
+      currentQuestionIndex++;
+      if (currentQuestionIndex < currentTopic questoes.length) {
+        showQuestion();
+      } else {
+        alert('Fim do tópico!');
+        location.reload();
+      }
+    }
+  </script>
+
+  <!-- Sistema de anotações -->
+  <script>
+    let currentNoteQuestionId = null;
+
+    function loadNote(questionId) {
+      currentNoteQuestionId = questionId;
+      const key = `note_${questionId}`;
+      const note = localStorage.getItem(key) || '';
+      
+      document.getElementById('notes-section').innerHTML = `
+        <h3>O que eu aprendi?</h3>
+        <textarea id="noteInput" rows="3" placeholder="Escreva suas anotações aqui...">${note}</textarea>
+        <button onclick="saveNote()">Salvar Anotação</button>
+      `;
+    }
+
+    function saveNote() {
+      const note = document.getElementById('noteInput').value;
+      const key = `note_${currentNoteQuestionId}`;
+      localStorage.setItem(key, note);
+      alert('Anotação salva!');
+    }
+  </script>
+</body>
+</html>
