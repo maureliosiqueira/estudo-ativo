@@ -22,13 +22,13 @@
   <script src="firebase-config.js"></script>
   <script src="js/auth.js"></script>
 
-  <!-- Verifica autenticação ao carregar -->
+  <!-- 🔥 Verifica autenticação AO CARREGAR a página -->
   <script>
-    window.onload = () => {
-      if (typeof firebase !== 'undefined') {
+    window.addEventListener('load', () => {
+      if (typeof firebase !== 'undefined' && typeof checkAuth === 'function') {
         checkAuth();
       }
-    };
+    });
   </script>
 </body>
 </html>
