@@ -1,13 +1,13 @@
-<!-- Em dashboard.html, no final do body -->
+<!-- Trecho essencial em dashboard.html -->
 <script>
   window.addEventListener('load', () => {
     firebase.auth().onAuthStateChanged(user => {
       if (!user) {
+        // Não está logado → volta para o login
         window.location.href = 'index.html';
       } else {
+        // Está logado → carrega o conteúdo
         document.getElementById('userName').textContent = user.displayName || user.email;
-        // Aqui você pode carregar o plano (gratuito/premium) do Firestore, se quiser
-        document.getElementById('userPlan').textContent = 'Gratuito'; // ou busque do Firestore
       }
     });
   });
