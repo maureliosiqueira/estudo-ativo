@@ -9,30 +9,19 @@ function signOutUser() {
   });
 }
 
+// 🔥 Função que verifica o estado de autenticação
 function checkAuth() {
   firebase.auth().onAuthStateChanged(user => {
     if (user) {
-      // Usuário está logado → redireciona para o dashboard
+      // Está logado → vai para o dashboard
       if (window.location.pathname.endsWith('index.html')) {
         window.location.href = 'dashboard.html';
       }
     } else {
-      // Usuário não está logado → redireciona para login
+      // Não está logado → fica na página de login
       if (!window.location.pathname.endsWith('index.html')) {
         window.location.href = 'index.html';
       }
     }
   });
-}
-
-async function loadUserProfile(uid) {
-  const db = firebase.firestore();
-  const userDoc = await db.collection('users').doc(uid).get();
-  
-  if (!userDoc.exists) {
-    await db.collection('users').doc(uid).set({
-      isPremium: false,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
-  }
 }
