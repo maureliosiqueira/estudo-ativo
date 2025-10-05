@@ -36,4 +36,4 @@ async function loadUserProfile(uid) {
     const data = userDoc.data();
     document.getElementById('userPlan').textContent = data.isPremium ? 'Premium' : 'Gratuito';
   }
-}// Autenticação Firebase
+}
