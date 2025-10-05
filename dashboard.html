@@ -1,38 +1,62 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Estudo Ativo - Dashboard</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
 <body>
-  <div class="container">
-    <header>
+  <!-- Header Profissional -->
+  <header class="header">
+    <div class="header-content">
+      <img src="logo.png" alt="Logomarca Estudando T.I." class="logo">
       <h1>📚 Estudo Ativo</h1>
-      <button id="logoutBtn">Sair</button>
-    </header>
-
-    <div id="user-info">
-      <p>Bem-vindo, <span id="userName">...</span>!</p>
-      <p>Plano: <span id="userPlan">Gratuito</span></p>
+      <button id="logoutBtn" class="btn btn-outline">Sair</button>
     </div>
+  </header>
 
-    <!-- Lista de tópicos -->
-    <div id="topics-list">
-      <h2>Tópicos Disponíveis</h2>
-      <ul>
-        <li><a href="#" onclick="loadTopic('exemplo')">Exemplo (50 questões)</a></li>
-        <!-- Adicione mais tópicos aqui conforme necessário -->
-      </ul>
-    </div>
+  <!-- Main Content -->
+  <main class="container">
+    <!-- User Info Card -->
+    <section class="user-card">
+      <div class="avatar">
+        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="#6c757d">
+          <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-1.67 0-3.17-.84-4-2.15V17h8v-4.85C15.17 13.16 13.67 14 12 14z"/>
+        </svg>
+      </div>
+      <div class="user-info">
+        <h3>Bem-vindo, <span id="userName">...</span>!</h3>
+        <p><strong>Plano:</strong> <span id="userPlan">Gratuito</span></p>
+        <p><strong>Limite diário:</strong> <span id="daily-status">Carregando...</span></p>
+      </div>
+    </section>
 
-    <!-- Exibição de questões -->
-    <div id="question-container" style="display:none;">
-      <h2 id="topic-title">Tópico</h2>
-      <div id="question-box"></div>
-      <div id="notes-section"></div>
-      <button onclick="nextQuestion()">Próxima Questão</button>
-    </div>
+    <!-- Topics Section -->
+    <section class="topics-section">
+      <h2>📘 Tópicos Disponíveis</h2>
+      <div class="topics-grid">
+        <div class="topic-card" onclick="loadTopic('exemplo')">
+          <h3>Exemplo</h3>
+          <p>(50 questões)</p>
+        </div>
+        <!-- Adicione mais tópicos aqui -->
+      </div>
+    </section>
 
-    <!-- Status diário -->
-    <p class="footer">Limite diário: <span id="daily-status">Carregando...</span></p>
-  </div>
+    <!-- Question Container -->
+    <section id="question-container" class="question-container" style="display:none;">
+      <div class="question-header">
+        <h2 id="topic-title">Tópico</h2>
+        <button onclick="nextQuestion()" class="btn btn-primary">Próxima Questão</button>
+      </div>
+      <div id="question-box" class="question-box"></div>
+      <div id="notes-section" class="notes-section"></div>
+    </section>
+  </main>
 
-  <!-- Rodapé com redes sociais -->
-  <footer class="social-footer">
+  <!-- Footer with Social Media -->
+  <footer class="footer">
     <p>Siga-me nas redes:</p>
     <div class="social-links">
       <a href="https://www.youtube.com/channel/UCFLK2Bw4KIDwiKd9pN_tI7Q" target="_blank" rel="noopener" aria-label="YouTube">
@@ -52,6 +76,7 @@
         </svg>
       </a>
     </div>
+    <p class="copyright">© 2025 Estudo Ativo • Código aberto • Gratuito para todos</p>
   </footer>
 
   <!-- Firebase SDKs -->
@@ -68,4 +93,130 @@
       storageBucket: "estudo-ativo-projeto.firebasestorage.app",
       messagingSenderId: "257330913879",
       appId: "1:257330913879:web:4babb1b1fa4a77cd7bb912",
-      measurementId: "G-SJT94
+      measurementId: "G-SJT94J9CP7"
+    };
+    firebase.initializeApp(firebaseConfig);
+  </script>
+
+  <!-- Autenticação e carregamento do nome -->
+  <script>
+    window.addEventListener('load', () => {
+      firebase.auth().onAuthStateChanged(user => {
+        if (!user) {
+          window.location.href = 'index.html';
+        } else {
+          document.getElementById('userName').textContent = user.displayName || user.email || 'Usuário';
+          document.getElementById('userPlan').textContent = 'Gratuito';
+        }
+      });
+
+      document.getElementById('logoutBtn')?.addEventListener('click', () => {
+        firebase.auth().signOut().then(() => window.location.href = 'index.html');
+      });
+    });
+  </script>
+
+  <!-- Limite diário -->
+  <script>
+    let dailyCount = 0;
+    const DAILY_LIMIT_FREE = 10;
+
+    function updateDailyStatus() {
+      const today = new Date().toDateString();
+      const storedDate = localStorage.getItem('estudoAtivo.lastDate');
+      const storedCount = parseInt(localStorage.getItem('estudoAtivo.dailyCount') || '0');
+
+      if (storedDate !== today) {
+        dailyCount = 0;
+        localStorage.setItem('estudoAtivo.lastDate', today);
+        localStorage.setItem('estudoAtivo.dailyCount', '0');
+      } else {
+        dailyCount = storedCount;
+      }
+      document.getElementById('daily-status').textContent = `${dailyCount}/${DAILY_LIMIT_FREE} (gratuito)`;
+    }
+
+    function incrementDailyCount() {
+      dailyCount++;
+      localStorage.setItem('estudoAtivo.dailyCount', dailyCount.toString());
+      updateDailyStatus();
+    }
+
+    function canAnswerMore() {
+      return dailyCount < DAILY_LIMIT_FREE;
+    }
+
+    updateDailyStatus();
+  </script>
+
+  <!-- Questões e anotações -->
+  <script>
+    let currentTopic = null;
+    let currentQuestionIndex = 0;
+
+    async function loadTopic(topicKey) {
+      try {
+        const res = await fetch(`topicos/${topicKey}.json`);
+        currentTopic = await res.json();
+        currentQuestionIndex = 0;
+        showQuestion();
+        document.getElementById('topics-section').style.display = 'none';
+        document.getElementById('question-container').style.display = 'block';
+        document.getElementById('topic-title').textContent = currentTopic.titulo;
+      } catch (e) {
+        alert('Erro ao carregar tópico.');
+      }
+    }
+
+    function showQuestion() {
+      if (!canAnswerMore()) {
+        document.getElementById('question-box').innerHTML = `<p>⚠️ Limite diário atingido! Volte amanhã.</p>`;
+        return;
+      }
+      const q = currentTopic.questoes[currentQuestionIndex];
+      document.getElementById('question-box').innerHTML = `
+        <p><strong>Questão ${q.id} de ${currentTopic.questoes.length}</strong></p>
+        <p>${q.enunciado}</p>
+        <ul>${q.alternativas.map(a => `<li><label><input type="radio" name="q"> ${a}</label></li>`).join('')}</ul>
+        <button onclick="showAnswer(${q.id})">Ver Resposta</button>
+      `;
+      loadNote(q.id);
+    }
+
+    function showAnswer(id) {
+      const q = currentTopic questoes[currentQuestionIndex];
+      document.getElementById('question-box').innerHTML += `
+        <div class="answer">
+          <p><strong>Resposta correta:</strong> ${q.resposta_correta}</p>
+          <p><em>${q.explicacao}</em></p>
+        </div>
+      `;
+      incrementDailyCount();
+    }
+
+    function nextQuestion() {
+      if (++currentQuestionIndex < currentTopic questoes.length) {
+        showQuestion();
+      } else {
+        alert('Fim do tópico!');
+        location.reload();
+      }
+    }
+
+    function loadNote(id) {
+      const note = localStorage.getItem(`note_${id}`) || '';
+      document.getElementById('notes-section').innerHTML = `
+        <h3>O que eu aprendi?</h3>
+        <textarea id="noteInput" rows="3" placeholder="Escreva suas anotações aqui...">${note}</textarea>
+        <button onclick="saveNote(${id})">Salvar</button>
+      `;
+    }
+
+    function saveNote(id) {
+      const note = document.getElementById('noteInput').value;
+      localStorage.setItem(`note_${id}`, note);
+      alert('Anotação salva!');
+    }
+  </script>
+</body>
+</html>
