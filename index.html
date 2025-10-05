@@ -1,18 +1,20 @@
 <!DOCTYPE html>
 <html lang="pt-BR">
-<header class="header">
-  <div class="header-content">
-    <img src="logo.png" alt="Logomarca Estudando T.I." class="logo">
-    <h1>📚 Estudo Ativo</h1>
-    <button id="logoutBtn" class="btn btn-outline">Sair</button>
-  </div>
-</header>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Estudo Ativo - Login</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
 <body>
-  <div class="container">
-    <h1>📚 Estudo Ativo</h1>
-    <p>Entre para acessar suas questões e anotações.</p>
-    <button id="loginBtn">Entrar com Google</button>
-    <p class="footer">Código aberto • Gratuito para todos</p>
+  <div class="login-container">
+    <div class="login-card">
+      <img src="logo.png" alt="Logomarca Estudando T.I." class="logo">
+      <h1>📚 Estudo Ativo</h1>
+      <p>Entre para acessar suas questões e anotações.</p>
+      <button id="loginBtn" class="btn btn-primary">Entrar com Google</button>
+      <p class="footer">Código aberto • Gratuito para todos</p>
+    </div>
   </div>
 
   <!-- Firebase SDKs -->
@@ -20,7 +22,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 
   <script>
-    // 🔑 Suas chaves reais
+    // Configuração do Firebase
     const firebaseConfig = {
       apiKey: "AIzaSyCZ5Pgzv08pcR6Xfp-SdjdYmqqSw7brNQ4",
       authDomain: "estudo-ativo-projeto.firebaseapp.com",
@@ -29,21 +31,26 @@
       messagingSenderId: "257330913879",
       appId: "1:257330913879:web:4babb1b1fa4a77cd7bb912"
     };
-
     firebase.initializeApp(firebaseConfig);
 
+    // Função de login
     document.getElementById('loginBtn').addEventListener('click', () => {
       const provider = new firebase.auth.GoogleAuthProvider();
-      // 🔥 Usa POPUP em vez de REDIRECT
       firebase.auth().signInWithPopup(provider)
         .then(() => {
-          // Login bem-sucedido → vai para o dashboard
           window.location.href = 'dashboard.html';
         })
         .catch((error) => {
           console.error("Erro no login:", error);
           alert("Falha no login: " + error.message);
         });
+    });
+
+    // Verifica se já está logado
+    firebase.auth().onAuthStateChanged(user => {
+      if (user) {
+        window.location.href = 'dashboard.html';
+      }
     });
   </script>
 </body>
