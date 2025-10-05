@@ -14,26 +14,46 @@
     <p class="footer">Código aberto • Gratuito para todos</p>
   </div>
 
-  <!-- Firebase SDKs -->
+  <!-- Firebase SDKs (versão compatível com CDN) -->
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 
-  <script src="firebase-config.js"></script>
-  <script src="js/auth.js"></script>
-
-  <!-- 🔥 Verificação crítica: redireciona se estiver logado -->
+  <!-- Configuração do Firebase -->
   <script>
-    window.addEventListener('load', async () => {
-      try {
-        const user = firebase.auth().currentUser;
+    // 🔑 Suas chaves reais (copiadas do Firebase Console)
+    const firebaseConfig = {
+      apiKey: "AIzaSyCZ5Pgzv08pcR6Xfp-SdjdYmqqSw7brNQ4",
+      authDomain: "estudo-ativo-projeto.firebaseapp.com",
+      projectId: "estudo-ativo-projeto",
+      storageBucket: "estudo-ativo-projeto.firebasestorage.app",
+      messagingSenderId: "257330913879",
+      appId: "1:257330913879:web:4babb1b1fa4a77cd7bb912",
+      measurementId: "G-SJT94J9CP7"
+    };
+
+    // Inicializa o Firebase
+    firebase.initializeApp(firebaseConfig);
+  </script>
+
+  <!-- Função de login -->
+  <script>
+    function signInWithGoogle() {
+      const provider = new firebase.auth.GoogleAuthProvider();
+      firebase.auth().signInWithRedirect(provider);
+    }
+  </script>
+
+  <!-- 🔥 Redirecionamento automático após login -->
+  <script>
+    window.addEventListener('load', () => {
+      firebase.auth().onAuthStateChanged(user => {
         if (user) {
-          // Já está logado → vai para o dashboard
+          // Usuário está logado → redireciona para o dashboard
           window.location.href = 'dashboard.html';
         }
-      } catch (e) {
-        console.log('Firebase não inicializado ou usuário não logado.');
-      }
+        // Se não estiver logado, permanece na página de login
+      });
     });
   </script>
 </body>
