@@ -14,13 +14,21 @@
     <p class="footer">Código aberto • Gratuito para todos</p>
   </div>
 
-  <!-- Firebase SDKs (versão compat - CDN) -->
+  <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
 
-  <!-- Configuração e scripts do seu app -->
   <script src="firebase-config.js"></script>
   <script src="js/auth.js"></script>
+
+  <!-- Verifica autenticação ao carregar -->
+  <script>
+    window.onload = () => {
+      if (typeof firebase !== 'undefined') {
+        checkAuth();
+      }
+    };
+  </script>
 </body>
 </html>
