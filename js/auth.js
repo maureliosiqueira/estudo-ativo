@@ -12,21 +12,17 @@ function signOutUser() {
 function checkAuth() {
   firebase.auth().onAuthStateChanged(user => {
     if (user) {
-      document.getElementById('userName').textContent = user.displayName || user.email;
-      loadUserProfile(user.uid);
-      // Redireciona para o dashboard se estiver na página de login
+      // Usuário está logado → redireciona para o dashboard
       if (window.location.pathname.endsWith('index.html')) {
         window.location.href = 'dashboard.html';
       }
     } else {
-      // Se não estiver logado, redireciona para a página de login
+      // Usuário não está logado → redireciona para login
       if (!window.location.pathname.endsWith('index.html')) {
         window.location.href = 'index.html';
       }
     }
   });
-
-  document.getElementById('logoutBtn')?.addEventListener('click', signOutUser);
 }
 
 async function loadUserProfile(uid) {
@@ -38,9 +34,5 @@ async function loadUserProfile(uid) {
       isPremium: false,
       createdAt: firebase.firestore.FieldValue.serverTimestamp()
     });
-    document.getElementById('userPlan').textContent = 'Gratuito';
-  } else {
-    const data = userDoc.data();
-    document.getElementById('userPlan').textContent = data.isPremium ? 'Premium' : 'Gratuito';
   }
 }
