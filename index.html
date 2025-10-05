@@ -22,11 +22,17 @@
   <script src="firebase-config.js"></script>
   <script src="js/auth.js"></script>
 
-  <!-- 🔥 Verifica autenticação AO CARREGAR a página -->
+  <!-- 🔥 Verificação crítica: redireciona se estiver logado -->
   <script>
-    window.addEventListener('load', () => {
-      if (typeof firebase !== 'undefined' && typeof checkAuth === 'function') {
-        checkAuth();
+    window.addEventListener('load', async () => {
+      try {
+        const user = firebase.auth().currentUser;
+        if (user) {
+          // Já está logado → vai para o dashboard
+          window.location.href = 'dashboard.html';
+        }
+      } catch (e) {
+        console.log('Firebase não inicializado ou usuário não logado.');
       }
     });
   </script>
