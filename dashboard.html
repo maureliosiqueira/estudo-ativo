@@ -27,7 +27,11 @@
       </div>
       <div class="user-info">
         <h3>Bem-vindo, <span id="userName">...</span>!</h3>
-        <p><strong>Plano:</strong> <span id="userPlan">Gratuito</span></p>
+        <p>
+          <strong>Plano:</strong> 
+          <span id="userPlan">Gratuito</span>
+          <button id="upgradeBtn" class="btn btn-outline" style="margin-left: 10px; font-size: 0.85rem;">Torne-se Premium</button>
+        </p>
         <p><strong>Limite diário:</strong> <span id="daily-status">Carregando...</span></p>
       </div>
     </section>
@@ -36,10 +40,11 @@
     <section class="topics-section">
       <h2>📘 Tópicos Disponíveis</h2>
       <div class="topics-grid">
-        <div class="topic-card" onclick="loadTopic('exemplo')">
-          <h3>Exemplo</h3>
+        <div class="topic-card" onclick="loadTopic('seguranca')">
+          <h3>Segurança da Informação</h3>
           <p>(50 questões)</p>
         </div>
+        <!-- Adicione mais tópicos aqui -->
       </div>
     </section>
 
@@ -63,159 +68,4 @@
           <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0-3.897.266-4.356 2.62-4.385 8.816.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0 3.897-.266 4.356-2.62 4.385-8.816-.029-6.185-.484-8.549-4.385-8.816zm-10.615 12.816v-8l8 3.993-8 4.007z"/>
         </svg>
       </a>
-      <a href="https://www.linkedin.com/in/marco-aur%C3%A9lio-santos-aa8552106/" target="_blank" rel="noopener" aria-label="LinkedIn">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#0077b5">
-          <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.63h-3.558v-9.732h3.377v1.438h.046c.47-1.072 1.618-2.207 3.324-2.207 3.57 0 6.287 2.338 6.287 7.33v5.57z"/>
-          <circle cx="4.9" cy="5.5" r="2.5" fill="#0077b5"/>
-        </svg>
-      </a>
-      <a href="https://marcoa-siqueira.hotmart.host/link-na-bio-e616b52b-be28-49bb-b8ed-68c93807705a" target="_blank" rel="noopener" aria-label="Hotmart">
-        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="#ff6b35">
-          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/>
-        </svg>
-      </a>
-    </div>
-    <p class="copyright">© 2025 Estudo Ativo • Código aberto • Gratuito para todos</p>
-  </footer>
-
-  <!-- Firebase SDKs -->
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
-
-  <!-- Configuração do Firebase -->
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyCZ5Pgzv08pcR6Xfp-SdjdYmqqSw7brNQ4",
-      authDomain: "estudo-ativo-projeto.firebaseapp.com",
-      projectId: "estudo-ativo-projeto",
-      storageBucket: "estudo-ativo-projeto.firebasestorage.app",
-      messagingSenderId: "257330913879",
-      appId: "1:257330913879:web:4babb1b1fa4a77cd7bb912",
-      measurementId: "G-SJT94J9CP7"
-    };
-    firebase.initializeApp(firebaseConfig);
-  </script>
-
-  <!-- Autenticação e carregamento do nome -->
-  <script>
-    window.addEventListener('load', () => {
-      firebase.auth().onAuthStateChanged(user => {
-        if (!user) {
-          window.location.href = 'index.html';
-        } else {
-          document.getElementById('userName').textContent = user.displayName || user.email || 'Usuário';
-          document.getElementById('userPlan').textContent = 'Gratuito';
-        }
-      });
-
-      document.getElementById('logoutBtn')?.addEventListener('click', () => {
-        firebase.auth().signOut().then(() => window.location.href = 'index.html');
-      });
-    });
-  </script>
-
-  <!-- Limite diário -->
-  <script>
-    let dailyCount = 0;
-    const DAILY_LIMIT_FREE = 10;
-
-    function updateDailyStatus() {
-      const today = new Date().toDateString();
-      const storedDate = localStorage.getItem('estudoAtivo.lastDate');
-      const storedCount = parseInt(localStorage.getItem('estudoAtivo.dailyCount') || '0');
-
-      if (storedDate !== today) {
-        dailyCount = 0;
-        localStorage.setItem('estudoAtivo.lastDate', today);
-        localStorage.setItem('estudoAtivo.dailyCount', '0');
-      } else {
-        dailyCount = storedCount;
-      }
-      document.getElementById('daily-status').textContent = `${dailyCount}/${DAILY_LIMIT_FREE} (gratuito)`;
-    }
-
-    function incrementDailyCount() {
-      dailyCount++;
-      localStorage.setItem('estudoAtivo.dailyCount', dailyCount.toString());
-      updateDailyStatus();
-    }
-
-    function canAnswerMore() {
-      return dailyCount < DAILY_LIMIT_FREE;
-    }
-
-    updateDailyStatus();
-  </script>
-
-  <!-- Questões e anotações -->
-  <script>
-    let currentTopic = null;
-    let currentQuestionIndex = 0;
-
-    async function loadTopic(topicKey) {
-      try {
-        const res = await fetch(`topicos/${topicKey}.json`);
-        currentTopic = await res.json();
-        currentQuestionIndex = 0;
-        showQuestion();
-        document.getElementById('topics-section').style.display = 'none';
-        document.getElementById('question-container').style.display = 'block';
-        document.getElementById('topic-title').textContent = currentTopic.titulo;
-      } catch (e) {
-        alert('Erro ao carregar tópico.');
-      }
-    }
-
-    function showQuestion() {
-      if (!canAnswerMore()) {
-        document.getElementById('question-box').innerHTML = `<p>⚠️ Limite diário atingido! Volte amanhã.</p>`;
-        return;
-      }
-      const q = currentTopic.questoes[currentQuestionIndex];
-      document.getElementById('question-box').innerHTML = `
-        <p><strong>Questão ${q.id} de ${currentTopic.questoes.length}</strong></p>
-        <p>${q.enunciado}</p>
-        <ul>${q.alternativas.map(a => `<li><label><input type="radio" name="q"> ${a}</label></li>`).join('')}</ul>
-        <button onclick="showAnswer(${q.id})">Ver Resposta</button>
-      `;
-      loadNote(q.id);
-    }
-
-    function showAnswer(id) {
-      const q = currentTopic questoes[currentQuestionIndex];
-      document.getElementById('question-box').innerHTML += `
-        <div class="answer">
-          <p><strong>Resposta correta:</strong> ${q.resposta_correta}</p>
-          <p><em>${q.explicacao}</em></p>
-        </div>
-      `;
-      incrementDailyCount();
-    }
-
-    function nextQuestion() {
-      if (++currentQuestionIndex < currentTopic questoes.length) {
-        showQuestion();
-      } else {
-        alert('Fim do tópico!');
-        location.reload();
-      }
-    }
-
-    function loadNote(id) {
-      const note = localStorage.getItem(`note_${id}`) || '';
-      document.getElementById('notes-section').innerHTML = `
-        <h3>O que eu aprendi?</h3>
-        <textarea id="noteInput" rows="3" placeholder="Escreva suas anotações aqui...">${note}</textarea>
-        <button onclick="saveNote(${id})">Salvar</button>
-      `;
-    }
-
-    function saveNote(id) {
-      const note = document.getElementById('noteInput').value;
-      localStorage.setItem(`note_${id}`, note);
-      alert('Anotação salva!');
-    }
-  </script>
-</body>
-</html>
+      <
