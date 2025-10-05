@@ -1,0 +1,17 @@
+{
+  "titulo": "Fundamentos de TI",
+  "questoes": [
+    {
+      "id": 1,
+      "enunciado": "Qual protocolo é usado para transferência segura de páginas web?",
+      "alternativas": [
+        "A) HTTP",
+        "B) FTP",
+        "C) HTTPS",
+        "D) SMTP"
+      ],
+      "resposta_correta": "C",
+      "explicacao": "HTTPS (HyperText Transfer Protocol Secure) usa SSL/TLS para criptografar a comunicação."
+    }
+  ]
+}
