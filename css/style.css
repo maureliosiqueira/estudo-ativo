@@ -37,6 +37,7 @@ body {
   border-radius: 50%;
   object-fit: cover;
   margin-bottom: 1rem;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.1);
 }
 
 .login-card h1 {
@@ -56,6 +57,7 @@ body {
   cursor: pointer;
   font-weight: 500;
   transition: all 0.2s ease;
+  font-size: 1rem;
 }
 
 .btn-primary {
@@ -230,25 +232,67 @@ body {
   border-radius: 5px;
 }
 
+/* Sistema de Anotações Avançado */
 .notes-section {
   background: #f8f9fa;
   padding: 1.5rem;
   border-radius: 8px;
-  margin-top: 1rem;
+  margin-top: 1.5rem;
 }
 
 .notes-section h3 {
-  margin-bottom: 0.5rem;
+  margin-bottom: 1rem;
   color: #212529;
+}
+
+.note-field {
+  margin-bottom: 1rem;
+}
+
+.note-field label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #495057;
 }
 
 .notes-section textarea {
   width: 100%;
-  padding: 0.5rem;
+  padding: 0.75rem;
   border: 1px solid #dee2e6;
   border-radius: 5px;
+  font-family: inherit;
   resize: vertical;
-  margin-bottom: 0.5rem;
+}
+
+.pdf-section h4 {
+  margin: 1rem 0 0.5rem;
+  color: #212529;
+}
+
+#pdf-links {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-top: 0.5rem;
+}
+
+#pdf-links a {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  text-decoration: none;
+  padding: 0.5rem 1rem;
+  background: white;
+  border: 1px solid #dee2e6;
+  border-radius: 5px;
+  font-size: 0.9rem;
+  color: #4a6cf7;
+}
+
+#pdf-links a:hover {
+  background: #eef2ff;
+  border-color: #4a6cf7;
 }
 
 /* Footer */
