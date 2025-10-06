@@ -42,7 +42,7 @@
       <div class="topics-grid">
         <div class="topic-card" onclick="loadTopic('seguranca')">
           <h3>Segurança da Informação</h3>
-          <p>(50 questões)</p>
+          <p>(50 questões gratuitas)</p>
         </div>
         <!-- Adicione mais tópicos aqui -->
       </div>
@@ -55,7 +55,30 @@
         <button onclick="nextQuestion()" class="btn btn-primary">Próxima Questão</button>
       </div>
       <div id="question-box" class="question-box"></div>
-      <div id="notes-section" class="notes-section"></div>
+
+      <!-- Sistema Avançado de Anotações -->
+      <div id="notes-section" class="notes-section">
+        <h3>Meu Estudo</h3>
+
+        <div class="note-field">
+          <label>O que eu aprendi?</label>
+          <textarea id="note_learned" rows="3" placeholder="Resuma com suas palavras o conceito-chave desta questão..."></textarea>
+        </div>
+
+        <div class="note-field">
+          <label>Meus comentários</label>
+          <textarea id="note_comments" rows="3" placeholder="Dúvidas, insights, analogias, links úteis..."></textarea>
+        </div>
+
+        <div class="pdf-section">
+          <h4>📚 PDFs Relacionados</h4>
+          <div id="pdf-links">
+            <!-- PDFs serão carregados dinamicamente aqui -->
+          </div>
+        </div>
+
+        <button onclick="saveNotes()" class="btn btn-primary" style="margin-top: 10px;">Salvar Anotações</button>
+      </div>
     </section>
   </main>
 
@@ -102,43 +125,34 @@
     firebase.initializeApp(firebaseConfig);
   </script>
 
-  <!-- Autenticação, logout e carregamento do nome -->
-<script>
-  // Função de logout
-  function signOutUser() {
-    firebase.auth().signOut().then(() => {
-      // Remove dados locais ao sair
-      localStorage.removeItem('isPremium');
-      localStorage.removeItem('estudoAtivo.lastDate');
-      localStorage.removeItem('estudoAtivo.dailyCount');
-      // Redireciona para login
-      window.location.href = 'index.html';
-    }).catch((error) => {
-      console.error("Erro ao sair:", error);
-      alert("Não foi possível sair. Tente novamente.");
-    });
-  }
-
-  // Verifica autenticação ao carregar
-  window.addEventListener('load', () => {
-    firebase.auth().onAuthStateChanged(user => {
-      if (!user) {
+  <!-- Autenticação e Logout -->
+  <script>
+    function signOutUser() {
+      firebase.auth().signOut().then(() => {
+        localStorage.removeItem('isPremium');
+        localStorage.removeItem('estudoAtivo.lastDate');
+        localStorage.removeItem('estudoAtivo.dailyCount');
         window.location.href = 'index.html';
-      } else {
-        document.getElementById('userName').textContent = user.displayName || user.email || 'Usuário';
-      }
-    });
-
-    // Garante que o botão de logout esteja ativo
-    const logoutBtn = document.getElementById('logoutBtn');
-    if (logoutBtn) {
-      logoutBtn.removeEventListener('click', signOutUser); // evita múltiplos listeners
-      logoutBtn.addEventListener('click', signOutUser);
+      }).catch((error) => {
+        console.error("Erro ao sair:", error);
+        alert("Não foi possível encerrar a sessão.");
+      });
     }
-  });
-</script>
 
-  <!-- Limite diário e plano premium -->
+    window.addEventListener('load', () => {
+      firebase.auth().onAuthStateChanged(user => {
+        if (!user) {
+          window.location.href = 'index.html';
+        } else {
+          document.getElementById('userName').textContent = user.displayName || user.email || 'Usuário';
+        }
+      });
+
+      document.getElementById('logoutBtn')?.addEventListener('click', signOutUser);
+    });
+  </script>
+
+  <!-- Limite Diário e Plano -->
   <script>
     let dailyCount = 0;
     const DAILY_LIMIT_FREE = 10;
@@ -184,12 +198,10 @@
         alert('Você já é um usuário Premium!');
         return;
       }
-      if (confirm('Deseja desbloquear acesso ilimitado a todas as questões?')) {
+      if (confirm('Deseja desbloquear acesso ilimitado a todas as questões e PDFs?')) {
         window.open('https://marcoa-siqueira.hotmart.host/link-na-bio-e616b52b-be28-49bb-b8ed-68c93807705a', '_blank');
-        
-        // Simulação de ativação (em produção, isso viria após webhook de pagamento)
         setTimeout(() => {
-          if (confirm('✅ Pagamento confirmado!\nDeseja ativar seu plano Premium agora?')) {
+          if (confirm('✅ Pagamento confirmado!\nAtivar plano Premium agora?')) {
             localStorage.setItem('isPremium', 'true');
             location.reload();
           }
@@ -198,14 +210,18 @@
     });
   </script>
 
-  <!-- Questões e anotações -->
+  <!-- Questões e Anotações Avançadas -->
   <script>
     let currentTopic = null;
     let currentQuestionIndex = 0;
+    let currentNoteQuestionId = null;
 
     async function loadTopic(topicKey) {
+      const isPremium = localStorage.getItem('isPremium') === 'true';
+      let file = isPremium ? `${topicKey}-premium.json` : `${topicKey}-gratuito.json`;
+
       try {
-        const res = await fetch(`topicos/${topicKey}.json`);
+        const res = await fetch(`topicos/${file}`);
         currentTopic = await res.json();
         currentQuestionIndex = 0;
         showQuestion();
@@ -213,13 +229,17 @@
         document.getElementById('question-container').style.display = 'block';
         document.getElementById('topic-title').textContent = currentTopic.titulo;
       } catch (e) {
-        alert('Erro ao carregar tópico.');
+        alert('Erro ao carregar tópico. Verifique se o arquivo existe.');
       }
     }
 
     function showQuestion() {
       if (!canAnswerMore()) {
-        document.getElementById('question-box').innerHTML = `<p>⚠️ Limite diário atingido! Volte amanhã ou <a href="#" onclick="document.getElementById('upgradeBtn').click()">torne-se premium</a>.</p>`;
+        document.getElementById('question-box').innerHTML = `
+          <p>⚠️ Limite diário atingido! Volte amanhã ou 
+          <a href="#" onclick="document.getElementById('upgradeBtn').click()">torne-se premium</a>.
+          </p>
+        `;
         return;
       }
       const q = currentTopic.questoes[currentQuestionIndex];
@@ -229,7 +249,7 @@
         <ul>${q.alternativas.map(a => `<li><label><input type="radio" name="q"> ${a}</label></li>`).join('')}</ul>
         <button onclick="showAnswer(${q.id})">Ver Resposta</button>
       `;
-      loadNote(q.id);
+      loadNotesAndPDFs(q.id);
     }
 
     function showAnswer(id) {
@@ -252,19 +272,38 @@
       }
     }
 
-    function loadNote(id) {
-      const note = localStorage.getItem(`note_${id}`) || '';
-      document.getElementById('notes-section').innerHTML = `
-        <h3>O que eu aprendi?</h3>
-        <textarea id="noteInput" rows="3" placeholder="Escreva suas anotações aqui...">${note}</textarea>
-        <button onclick="saveNote(${id})">Salvar</button>
-      `;
+    // --- Sistema Avançado de Anotações ---
+    function loadNotesAndPDFs(questionId) {
+      currentNoteQuestionId = questionId;
+      const saved = localStorage.getItem(`notes_${questionId}`);
+      if (saved) {
+        const notes = JSON.parse(saved);
+        document.getElementById('note_learned').value = notes.learned || '';
+        document.getElementById('note_comments').value = notes.comments || '';
+      } else {
+        document.getElementById('note_learned').value = '';
+        document.getElementById('note_comments').value = '';
+      }
+
+      const q = currentTopic.questoes.find(q => q.id === questionId);
+      const container = document.getElementById('pdf-links');
+      if (q && q.pdfs_relacionados && q.pdfs_relacionados.length > 0) {
+        container.innerHTML = q.pdfs_relacionados.map(pdf => 
+          `<a href="${pdf}" target="_blank" rel="noopener">📖 ${pdf.split('/').pop()}</a>`
+        ).join(' ');
+      } else {
+        container.innerHTML = '<p>Nenhum PDF disponível para esta questão.</p>';
+      }
     }
 
-    function saveNote(id) {
-      const note = document.getElementById('noteInput').value;
-      localStorage.setItem(`note_${id}`, note);
-      alert('Anotação salva!');
+    function saveNotes() {
+      if (currentNoteQuestionId === null) return;
+      const notes = {
+        learned: document.getElementById('note_learned').value,
+        comments: document.getElementById('note_comments').value
+      };
+      localStorage.setItem(`notes_${currentNoteQuestionId}`, JSON.stringify(notes));
+      alert('✅ Anotações salvas com sucesso!');
     }
   </script>
 </body>
